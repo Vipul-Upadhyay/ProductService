@@ -3,7 +3,7 @@ package com.productservice.productservice.services;
 import com.productservice.productservice.dtos.FakeStoreProductDto;
 import com.productservice.productservice.dtos.GenericProductDto;
 import com.productservice.productservice.exceptions.ProductNotFoundException;
-import com.productservice.productservice.thirdPartyClients.fakeStoreClient.FakeStoreClientAdapter;
+import com.productservice.productservice.thirdPartyClients.fakeStoreClient.FakeStoreClient;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,9 +12,9 @@ import java.util.List;
 @Service("fakeStoreProductService")
 public class FakeStoreProductService implements ProductService {
 
-    private FakeStoreClientAdapter fakeStoreAdapter;
+    private FakeStoreClient fakeStoreAdapter;
 
-    FakeStoreProductService(FakeStoreClientAdapter fakeStoreAdapter){
+    FakeStoreProductService(FakeStoreClient fakeStoreAdapter){
         this.fakeStoreAdapter = fakeStoreAdapter;
     }
 

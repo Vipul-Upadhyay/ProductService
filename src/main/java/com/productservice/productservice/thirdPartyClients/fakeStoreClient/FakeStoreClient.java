@@ -13,12 +13,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 @Component
-public class FakeStoreClientAdapter {
+public class FakeStoreClient {
     private RestTemplateBuilder restTemplateBuilder;
     private String specificProductUrl = "https://fakestoreapi.com/products/{id}";
     private String genericProductsUrl = "https://fakestoreapi.com/products";
 
-    FakeStoreClientAdapter(RestTemplateBuilder restTemplateBuilder){
+    FakeStoreClient(RestTemplateBuilder restTemplateBuilder){
         this.restTemplateBuilder = restTemplateBuilder;
     }
 
