@@ -6,6 +6,7 @@ import com.productservice.exceptions.ProductNotFoundException;
 import com.productservice.security.JWTObject;
 import com.productservice.security.TokenValidator;
 import com.productservice.thirdPartyClients.fakeStoreClient.FakeStoreClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,12 +16,14 @@ import java.util.Optional;
 @Service("fakeStoreProductService")
 public class FakeStoreProductService implements ProductService {
 
-    private FakeStoreClient fakeStoreAdapter;
+    private final FakeStoreClient fakeStoreAdapter;
     private TokenValidator tokenValidator;
+    private RedisTemplate<String, FakeStoreProductDto> redisTemplate;
 
-    FakeStoreProductService(FakeStoreClient fakeStoreAdapter, TokenValidator tokenValidator){
+    FakeStoreProductService(FakeStoreClient fakeStoreAdapter, TokenValidator tokenValidator, RedisTemplate redisTemplate){
         this.fakeStoreAdapter = fakeStoreAdapter;
         this.tokenValidator = tokenValidator;
+        this.redisTemplate = redisTemplate;
     }
 
     private static GenericProductDto convertToGenericProductDto(FakeStoreProductDto fakeStoreProductDto){
@@ -37,16 +40,22 @@ public class FakeStoreProductService implements ProductService {
     public GenericProductDto getProductById(String authToken, Long id) throws ProductNotFoundException {
 
         Optional<JWTObject> jwtObjectOptional = tokenValidator.validateToken(authToken);
+//
+//        if(jwtObjectOptional.isEmpty()){
+//            //Invalid token
+//            //reject the request;
+//            return null;
+//        }
+//
+//        JWTObject jwtObject = jwtObjectOptional.get();
+//        Long userId = jwtObject.getUserId();
 
-        if(jwtObjectOptional.isEmpty()){
-            //Invalid token
-            //reject the request;
-            return null;
+        FakeStoreProductDto fakeStoreProductDto = (FakeStoreProductDto) redisTemplate.opsForHash().get("PRODUCTS",id);
+        if(fakeStoreProductDto != null){
+            return convertToGenericProductDto(fakeStoreProductDto);
         }
-
-        JWTObject jwtObject = jwtObjectOptional.get();
-        Long userId = jwtObject.getUserId();
-
+        fakeStoreProductDto = fakeStoreAdapter.getProductById(id);
+        redisTemplate.opsForHash().put("PRODUCTS",id,fakeStoreProductDto);
 
         return convertToGenericProductDto(fakeStoreAdapter.getProductById(id));
     }
